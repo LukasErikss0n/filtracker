@@ -1,7 +1,7 @@
-FROM node:22-alpine AS deps
+FROM node:22-slim AS deps
 WORKDIR /app
-COPY package.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci
 
 # ---- dev: live-reloading Vite dev server, source bind-mounted at runtime ----
 FROM deps AS dev
