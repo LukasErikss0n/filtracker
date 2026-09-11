@@ -85,6 +85,9 @@ Cloudflare, once the tunnel connects).
 
 ## Local development without Docker
 
+One `.env` at the project root, no per-service copies. Both backend and
+frontend read it directly from `../` relative to their own folder.
+
 Backend:
 
 ```bash
@@ -93,8 +96,10 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/uvicorn app.main:app --reload
 ```
 
-It reads `backend/.env` for `API_KEY`/`SECRET_KEY`/etc, and password hashes
-from `../secrets/tempPass_<account>` (same files Docker uses).
+It reads the root `.env` for `API_KEY`/`SECRET_KEY`/etc (see
+`SettingsConfigDict(env_file=("../.env", ".env"))` in `app/core/config.py`),
+and password hashes from `../secrets/tempPass_<account>` (same files Docker
+uses).
 
 Frontend:
 
@@ -104,8 +109,10 @@ npm install
 npm run dev
 ```
 
-The Vite dev server proxies `/api` to `http://localhost:8000` by default
-(see `vite.config.js`) — set `VITE_API_KEY` to match the backend's `API_KEY`.
+`vite.config.js` reads `API_KEY` straight out of the root `.env` (via
+`loadEnv`) and exposes it to the client as `import.meta.env.VITE_API_KEY` —
+no separate `VITE_`-prefixed variable or frontend-local `.env` needed. The
+dev server proxies `/api` to `http://localhost:8000` by default.
 
 ## How the model works
 

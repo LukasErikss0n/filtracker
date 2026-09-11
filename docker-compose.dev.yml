@@ -9,6 +9,7 @@
 services:
   backend:
     build: ./backend
+    image: filtracker-backend:dev
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     env_file: .env
     volumes:
@@ -23,6 +24,7 @@ services:
     build:
       context: ./frontend
       target: dev
+    image: filtracker-frontend:dev
     environment:
       VITE_API_BASE_URL: /api
       VITE_API_KEY: ${API_KEY}

@@ -21,7 +21,11 @@ SECRETS_DIR_CANDIDATES = ["/app/secrets", "../secrets", "secrets"]
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # Single project-root .env, no per-service copies. In Docker it's
+    # injected directly as container env vars (env_file: in compose), so
+    # nothing here needs to find a file. Running locally without Docker
+    # (cwd is backend/), it's one level up.
+    model_config = SettingsConfigDict(env_file=("../.env", ".env"), extra="ignore")
 
     api_key: str = ""
     secret_key: str = "insecure-dev-secret-change-me"
