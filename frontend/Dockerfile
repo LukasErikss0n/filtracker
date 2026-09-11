@@ -1,7 +1,12 @@
 FROM node:22-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# npm ci installs Rollup's optional native binary strictly from the lockfile,
+# which was generated on a different machine's architecture — a known npm
+# bug (npm/cli#4828) where that binary then doesn't match the container's
+# actual platform. npm install re-resolves optional deps for whatever
+# platform it's actually running on, which is what we want in a Dockerfile.
+RUN npm install
 
 # ---- dev: live-reloading Vite dev server, source bind-mounted at runtime ----
 FROM deps AS dev
