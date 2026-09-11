@@ -1,0 +1,42 @@
+# Local development: backend auto-reloads on code changes, frontend runs
+# the Vite dev server with hot module reload. No Cloudflare tunnel — this
+# is local-only.
+#
+#   docker compose -f docker-compose.dev.yml up --build
+#
+# Backend: http://localhost:8005/api  Frontend: http://localhost:5173
+#
+services:
+  backend:
+    build: ./backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file: .env
+    volumes:
+      - ./backend/app:/app/app
+      - ./secrets:/app/secrets
+      - backend_data_dev:/data
+    ports:
+      - "8005:8000"
+    networks: [internal]
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    environment:
+      VITE_API_BASE_URL: /api
+      VITE_API_KEY: ${API_KEY}
+      VITE_PROXY_TARGET: http://backend:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on: [backend]
+    networks: [internal]
+
+networks:
+  internal:
+
+volumes:
+  backend_data_dev:

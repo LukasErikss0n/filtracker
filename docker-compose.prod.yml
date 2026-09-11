@@ -1,0 +1,43 @@
+# Production: static frontend build served by nginx, exposed to the
+# internet only through the Cloudflare tunnel.
+#
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+services:
+  backend:
+    build: ./backend
+    env_file: .env
+    volumes:
+      - backend_data:/data
+      - ./secrets:/app/secrets
+    restart: unless-stopped
+    networks: [internal]
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: /api
+        VITE_API_KEY: ${API_KEY}
+    depends_on: [backend]
+    ports:
+      - "8004:80"
+    restart: unless-stopped
+    networks: [internal]
+
+  # Paste your Cloudflare tunnel connector token into .env
+  # (CLOUDFLARE_TUNNEL_TOKEN) and point the tunnel's public hostname at
+  # this service (frontend:80 is what cloudflared reaches over the
+  # internal docker network).
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on: [frontend]
+    restart: unless-stopped
+    networks: [internal]
+
+networks:
+  internal:
+
+volumes:
+  backend_data:
