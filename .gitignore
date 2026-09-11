@@ -7,20 +7,24 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+# Anchored to repo root (not bare "lib/" etc) — this is a Python-template
+# block, and an unanchored "lib/" silently ignored frontend/src/lib/ too,
+# which was never committed as a result. Cost hours debugging a Rollup
+# "could not resolve" error on a deploy VM before anyone noticed.
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
+/build/
+/develop-eggs/
+/dist/
+/downloads/
+/eggs/
+/.eggs/
+/lib/
+/lib64/
+/parts/
+/sdist/
+/var/
+/wheels/
+/share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
